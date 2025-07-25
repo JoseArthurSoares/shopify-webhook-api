@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {Injectable, InternalServerErrorException} from '@nestjs/common';
+import { ShopifyCallbackQueryDto } from './dto/shopify-callback-query.dto';
+import {HttpService} from '@nestjs/axios';
+import {ConfigService} from "@nestjs/config";
+import * as crypto from 'crypto';
+import {lastValueFrom} from "rxjs";
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  private readonly shopifyApiSecret: string;
+  private readonly shopifyApiKey: string;
+
+  constructor(
+      private readonly configService: ConfigService,
+      private readonly httpService: HttpService
+  ){
+    this.shopifyApiSecret = this.configService.get('SHOPIFY_API_SECRET')!;
+    this.shopifyApiKey = this.configService.get('SHOPIFY_API_KEY')!;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  verifyHmac(query: ShopifyCallbackQueryDto) {
+    const {hmac, ...rest} = query;
+
+    const message = Object.keys(rest)
+        .sort()
+        .map((key) => `${key}=${rest[key]}`)
+        .join('&');
+
+    const calculatedHmac = crypto
+        .createHmac('sha256', this.shopifyApiSecret)
+        .update(message)
+        .digest('hex');
+
+    return calculatedHmac === hmac;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  async fetchAccessToken(shop: string, code: string) {
+    const url = `https://${shop}/admin/oauth/access_token`;
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const body = {
+      client_id: this.shopifyApiKey,
+      client_secret: this.shopifyApiSecret,
+      code
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    try {
+      const request = this.httpService.post(url, body);
+      const response = await lastValueFrom(request);
+      return response.data.access_token;
+    } catch (error) {
+      throw new InternalServerErrorException('Não foi possível obter o token de acesso do Shopify.');
+    }
   }
 }
