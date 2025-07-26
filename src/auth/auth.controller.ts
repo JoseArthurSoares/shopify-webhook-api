@@ -7,6 +7,7 @@ import {ShopsService} from "../shops/shops.service";
 
 @Controller('auth')
 export class AuthController {
+
   constructor(
       private readonly configService: ConfigService,
       private readonly authService: AuthService,
@@ -14,15 +15,14 @@ export class AuthController {
   ) {}
 
   @Get()
-  @Redirect()
-  redirectToShopify(@Query('shop') shop: string) {
+  redirectToShopify(@Query('shop') shop: string, @Res() res: Response) {
     const redirectUri = `${this.configService.get('HOST')}/auth/callback`;
     const apiKey = this.configService.get('SHOPIFY_API_KEY');
     const scopes = this.configService.get('SHOPIFY_SCOPES');
 
     const url = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes}&redirect_uri=${redirectUri}`;
 
-    return { url: url };
+    res.redirect(url);
   }
 
   @Get('callback')
