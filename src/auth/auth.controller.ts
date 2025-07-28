@@ -4,6 +4,7 @@ import { ShopifyCallbackQueryDto } from './dto/shopify-callback-query.dto';
 import { Response } from 'express';
 import {ConfigService} from "@nestjs/config";
 import {ShopsService} from "../shops/shops.service";
+import {WebhooksService} from "../webhooks/webhooks.service";
 
 @Controller('auth')
 export class AuthController {
@@ -11,7 +12,8 @@ export class AuthController {
   constructor(
       private readonly configService: ConfigService,
       private readonly authService: AuthService,
-      private readonly shopsService: ShopsService
+      private readonly shopsService: ShopsService,
+      private readonly webhooksService: WebhooksService,
   ) {}
 
   @Get()
@@ -43,6 +45,8 @@ export class AuthController {
       access_token: accessToken,
     });
 
-    return res.send();
+    await this.webhooksService.registerOrderCreateWebhook(shop, accessToken);
+
+    return res.send('Loja conectada e webhook criado.');
   }
 }

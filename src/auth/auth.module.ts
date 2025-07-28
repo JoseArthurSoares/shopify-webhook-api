@@ -4,13 +4,18 @@ import { AuthController } from './auth.controller';
 import {HttpModule} from "@nestjs/axios";
 import {ShopsModule} from "../shops/shops.module";
 import {ShopsService} from "../shops/shops.service";
+import {WebhooksService} from "../webhooks/webhooks.service";
 
 @Module({
   imports: [
       HttpModule,
-      ShopsModule,
+      ShopsModule
   ],
   controllers: [AuthController],
-  providers: [AuthService,ShopsService],
+  providers: [
+      AuthService,
+      ShopsService,
+      WebhooksService
+  ],
 })
 export class AuthModule {}

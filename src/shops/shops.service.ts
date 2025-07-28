@@ -22,6 +22,11 @@ export class ShopsService {
           nome_loja: shopDto.nome_loja,
           access_token: shopDto.access_token,
         })
-        .onConflictDoNothing();
+        .onConflictDoUpdate({
+            target:schema.shops.nome_loja,
+            set: {
+                access_token: shopDto.access_token,
+            }
+        })
   }
 }
