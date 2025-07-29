@@ -1,51 +1,49 @@
-import {Controller, Get, Query, Res, Redirect} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { ShopifyCallbackQueryDto } from './dto/shopify-callback-query.dto';
+import {Controller, Get, Query, Res, Inject, Req} from '@nestjs/common';
 import { Response } from 'express';
-import {ConfigService} from "@nestjs/config";
 import {ShopsService} from "../shops/shops.service";
 import {WebhooksService} from "../webhooks/webhooks.service";
+import {SHOPIFY_API_INSTANCE} from "../shopify/shopify-api.provider";
+import {Shopify} from "@shopify/shopify-api";
 
 @Controller('auth')
 export class AuthController {
 
   constructor(
-      private readonly configService: ConfigService,
-      private readonly authService: AuthService,
+      @Inject(SHOPIFY_API_INSTANCE) private readonly shopify: Shopify,
       private readonly shopsService: ShopsService,
       private readonly webhooksService: WebhooksService,
   ) {}
 
   @Get()
-  redirectToShopify(@Query('shop') shop: string, @Res() res: Response) {
-    const redirectUri = `${this.configService.get('HOST')}/auth/callback`;
-    const apiKey = this.configService.get('SHOPIFY_API_KEY');
-    const scopes = this.configService.get('SHOPIFY_SCOPES');
-
-    const url = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes}&redirect_uri=${redirectUri}`;
-
-    res.redirect(url);
+  async redirectToShopify(@Query('shop') shop: string, @Req() req: Request, @Res() res: Response) {
+    await this.shopify.auth.begin({
+      shop,
+      callbackPath: '/auth/callback',
+      isOnline: false,
+      rawRequest: req,
+      rawResponse: res,
+    });
   }
 
   @Get('callback')
   async handleCallback(
-      @Query() query: ShopifyCallbackQueryDto,
+      @Req() req: Request,
       @Res() res: Response
   ) {
-    const { shop, hmac, code, state } = query;
-    const isValid = this.authService.verifyHmac(query);
-    if (!isValid) {
-      return res.status(400).send('Verificação HMAC falhou');
-    }
 
-    const accessToken = await this.authService.fetchAccessToken(shop, code);
+    const callbackResponse = await this.shopify.auth.callback({
+      rawRequest: req,
+      rawResponse: res,
+    })
 
-    await this.shopsService.saveShop({
-      nome_loja: shop,
-      access_token: accessToken,
-    });
+    const { session } = callbackResponse
 
-    await this.webhooksService.registerOrderCreateWebhook(shop, accessToken);
+    await this.shopsService.saveShop(
+        session.shop,
+        session.accessToken!,
+    );
+
+    await this.webhooksService.registerOrderCreateWebhook(session.shop, session.accessToken);
 
     return res.send('Loja conectada e webhook criado.');
   }

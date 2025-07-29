@@ -9,7 +9,7 @@ import {WebhooksService} from "../webhooks/webhooks.service";
 @Module({
   imports: [
       HttpModule,
-      ShopsModule
+      ShopsModule,
   ],
   controllers: [AuthController],
   providers: [

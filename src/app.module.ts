@@ -6,6 +6,7 @@ import {ConfigModule} from "@nestjs/config";
 import { ShopsModule } from './shops/shops.module';
 import {DatabaseModule} from "./database/database.module";
 import { WebhooksModule } from './webhooks/webhooks.module';
+import {ShopifyModule} from "./shopify/shopify.module";
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { WebhooksModule } from './webhooks/webhooks.module';
       AuthModule,
       ShopsModule,
       DatabaseModule,
-      WebhooksModule
+      WebhooksModule,
+      ShopifyModule
   ],
     controllers: [AppController],
     providers: [AppService],
