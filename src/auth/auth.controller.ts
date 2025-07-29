@@ -43,7 +43,7 @@ export class AuthController {
         session.accessToken!,
     );
 
-    await this.webhooksService.registerOrderCreateWebhook(session.shop, session.accessToken);
+    await this.webhooksService.registerOrderCreateWebhook(session);
 
     return res.send('Loja conectada e webhook criado.');
   }

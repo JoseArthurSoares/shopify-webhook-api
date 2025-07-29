@@ -1,47 +1,51 @@
-import {Injectable, Logger} from '@nestjs/common';
-import {HttpService} from "@nestjs/axios";
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from "@nestjs/config";
-import {lastValueFrom} from "rxjs";
+import {Session, Shopify} from "@shopify/shopify-api";
+import {SHOPIFY_API_INSTANCE} from "../shopify/shopify-api.provider";
 
 @Injectable()
 export class WebhooksService {
     private readonly logger = new Logger(WebhooksService.name);
 
     constructor(
-        private readonly httpService: HttpService,
+        @Inject(SHOPIFY_API_INSTANCE) private readonly shopify: Shopify,
         private readonly configService: ConfigService,
     ) {}
 
-    async registerOrderCreateWebhook(shop: string, accessToken: string | undefined) {
+    async registerOrderCreateWebhook(session: Session) {
+        const client = new this.shopify.clients.Rest({session});
         const host = this.configService.get<string>('HOST');
-        const shopifyApiVersion = this.configService.get<string>('SHOPIFY_API_VERSION');
-
-        const webhookEndpoint = `https://${shop}/admin/api/${shopifyApiVersion}/webhooks.json`;
-        const webhookPayload = {
-            webhook: {
-                topic: 'orders/create',
-                address: `${host}/webhooks/orders-create`,
-                format: 'json',
-            },
-        };
-        const headers = {
-            'X-Shopify-Access-Token': accessToken,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        };
+        const callbackUrl = `${host}/webhooks/orders-create`;
 
         try {
-            const request = this.httpService.post(webhookEndpoint, webhookPayload, { headers });
-            const response = await lastValueFrom(request);
+            const response = await client.get({ path: 'webhooks' });
+            const webhooks = response.body.webhooks as any[];
 
-            if (response.status === 201) {
-                this.logger.log('Webhook registrado com sucesso (Status 201)!');
-            } else {
-                this.logger.warn(`Registro de webhook retornou um status inesperado: ${response.status}`);
+            const webhookAlreadyExists = webhooks.some(
+                (webhook) => webhook.address === callbackUrl,
+            );
+
+            if (webhookAlreadyExists) {
+                this.logger.log(`Webhook para ${callbackUrl} já existe.`);
+                return;
             }
 
+            await client.post({
+                path: 'webhooks',
+                data: {
+                    webhook: {
+                        topic: 'orders/create',
+                        address: callbackUrl,
+                        format: 'json',
+                    },
+                },
+            });
+
         } catch (error) {
-            this.logger.error('Falha ao registrar webhook:', error.response?.data || error.message);
+            this.logger.error('Falha no processo de registro do webhook:', error.message);
+            if (error.response) {
+                this.logger.error('Detalhes do erro:', error.response.body);
+            }
         }
     }
 }
