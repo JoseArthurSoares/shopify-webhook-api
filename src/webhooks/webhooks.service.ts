@@ -15,7 +15,7 @@ export class WebhooksService {
     async registerOrderCreateWebhook(session: Session) {
         const client = new this.shopify.clients.Rest({session});
         const host = this.configService.get<string>('HOST');
-        const callbackUrl = `${host}/webhooks/orders-create`;
+        const callbackUrl = `${host}/webhooks/orders/create`;
 
         try {
             const response = await client.get({ path: 'webhooks' });

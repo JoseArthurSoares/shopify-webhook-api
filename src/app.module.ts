@@ -7,9 +7,13 @@ import { ShopsModule } from './shops/shops.module';
 import {DatabaseModule} from "./database/database.module";
 import { WebhooksModule } from './webhooks/webhooks.module';
 import {ShopifyModule} from "./shopify/shopify.module";
+import { OrdersService } from './orders/orders.service';
+import {ShopsService} from "./shops/shops.service";
+import {EventEmitterModule} from "@nestjs/event-emitter";
 
 @Module({
   imports: [
+      EventEmitterModule.forRoot(),
       ConfigModule.forRoot({
           isGlobal: true,
           envFilePath:'.env'
@@ -21,6 +25,6 @@ import {ShopifyModule} from "./shopify/shopify.module";
       ShopifyModule
   ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, OrdersService, ShopsService],
 })
 export class AppModule {}

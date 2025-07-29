@@ -3,6 +3,7 @@ import {PostgresJsDatabase} from "drizzle-orm/postgres-js";
 import * as schema from '../database/schema';
 import { v4 as uuidv4 } from 'uuid';
 import {DATABASE_INSTANCE} from "../database/database.module";
+import {eq} from "drizzle-orm";
 
 
 @Injectable()
@@ -28,4 +29,10 @@ export class ShopsService {
             }
         })
   }
+
+    async findShopByDomain(shopDomain: any): Promise<any> {
+        return this.db.query.shops.findFirst({
+            where: eq(schema.shops.nome_loja, shopDomain)
+        })
+    }
 }
