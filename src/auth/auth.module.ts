@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import {HttpModule} from "@nestjs/axios";
 import {ShopsModule} from "../shops/shops.module";
@@ -13,7 +12,6 @@ import {WebhooksService} from "../webhooks/webhooks.service";
   ],
   controllers: [AuthController],
   providers: [
-      AuthService,
       ShopsService,
       WebhooksService
   ],
