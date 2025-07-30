@@ -36,4 +36,17 @@ export class OrdersService {
                 set: { order_data: payload },
             });
     }
+
+    async findAll(){
+        return this.db.query.orders.findMany({
+            with:{
+                shop:{
+                    columns:{
+                        nome_loja: true
+                    }
+                }
+            }
+        })
+
+    }
 }

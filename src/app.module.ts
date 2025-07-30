@@ -10,6 +10,7 @@ import {ShopifyModule} from "./shopify/shopify.module";
 import { OrdersService } from './orders/orders.service';
 import {ShopsService} from "./shops/shops.service";
 import {EventEmitterModule} from "@nestjs/event-emitter";
+import { OrdersController } from './orders/orders.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import {EventEmitterModule} from "@nestjs/event-emitter";
       WebhooksModule,
       ShopifyModule
   ],
-    controllers: [AppController],
+    controllers: [AppController, OrdersController],
     providers: [AppService, OrdersService, ShopsService],
 })
 export class AppModule {}
