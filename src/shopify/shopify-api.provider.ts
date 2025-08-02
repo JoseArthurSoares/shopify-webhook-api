@@ -26,7 +26,7 @@ export const ShopifyApiProvider: FactoryProvider = {
                 {
                     deliveryMethod: DeliveryMethod.Http,
                     callbackUrl:'/webhooks/orders/create',
-                    callback: async (shop, body) => {
+                    callback: async (topic, shop, body, webhookId) => {
                         const orderData = JSON.parse(body);
                         eventEmitter.emit('order.created', {
                             shopDomain: shop,
