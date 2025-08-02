@@ -15,7 +15,7 @@ const mockDb = {
     },
 };
 
-describe('ShopsService', () => {
+describe('OrdersService', () => {
     let service: ShopsService;
 
     beforeEach(async () => {
