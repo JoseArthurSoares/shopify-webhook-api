@@ -18,5 +18,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/src/database ./src/database
 
 CMD sh -c "npx drizzle-kit push --config=drizzle.config.ts && node dist/src/main"
