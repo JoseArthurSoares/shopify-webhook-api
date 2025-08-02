@@ -7,8 +7,6 @@ RUN npm install
 
 COPY . .
 
-RUN npx drizzle-kit push --config=drizzle.config.ts
-
 RUN npm run build
 
 FROM node:18-alpine
