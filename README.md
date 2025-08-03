@@ -30,18 +30,16 @@ cd shopify-webhook-api
 ```
 
 **2. Configure as Variáveis de Ambiente**
-Crie uma cópia do arquivo `.env.example` e renomeie-a para `.docker.env`.
+Crie uma cópia do arquivo `.env.example` e renomeie-a para `.env`.
 
 ```bash
-cp .env.example .docker.env
+cp .env.example .env
 ```
 
-Preencha o arquivo `.docker.env` com suas credenciais. A `DATABASE_URL` já está configurada para o ambiente Docker.
+Preencha o arquivo `.env` com suas credenciais. A `DATABASE_URL` já está configurada para o ambiente Docker.
 
 ```env
-# .docker.env
-PORT=3000
-
+# .env
 # Suas credenciais do Shopify (obtidas no Passo 2)
 SHOPIFY_API_KEY=...
 SHOPIFY_API_SECRET=...
