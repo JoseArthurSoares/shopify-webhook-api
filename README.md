@@ -159,8 +159,8 @@ Para que a API se conecte ao Shopify, você precisa criar um **Aplicativo Públi
 
 ## 🌐 Deploy na Render
 
-* **URL do Deploy:** `https://shopify-webhook-api-j9yj.onrender.com`
+* **URL do Deploy:** `https://shopify-webhook-api-19yj.onrender.com`
 * **Como Acessar:** Para instalar o aplicativo em uma loja, use a URL de instalação com o endereço da Render:
-  `https://shopify-webhook-api-j9yj.onrender.com/auth?shop=<nome-da-sua-loja>.myshopify.com`
+  `https://shopify-webhook-api-19yj.onrender.com/auth?shop=<nome-da-sua-loja>.myshopify.com`
 * **Endpoint de Listagem de Pedidos:**
-  `GET https://shopify-webhook-api-j9yj.onrender.com/orders`
+  `GET https://shopify-webhook-api-19yj.onrender.com/orders`
